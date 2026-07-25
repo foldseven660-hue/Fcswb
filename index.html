@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Face Swap Web</title>
+  <link rel="stylesheet" href="style.css">
+  
+  <!-- Import Gradio Client via CDN Module -->
+  <script type="module">
+    import { Client } from "https://cdn.jsdelivr.net/npm/@gradio/client/+esm";
+
+    const processBtn = document.getElementById('swap-btn');
+    const statusText = document.getElementById('status');
+    const resultImg = document.getElementById('result-img');
+
+    processBtn.addEventListener('click', async () => {
+      const sourceInput = document.getElementById('source-img').files[0];
+      const targetInput = document.getElementById('target-img').files[0];
+
+      if (!sourceInput || !targetInput) {
+        alert("Pilih kedua foto terlebih dahulu!");
+        return;
+      }
+
+      try {
+        statusText.innerText = "Sedang memproses... Harap tunggu beberapa detik.";
+        processBtn.disabled = true;
+
+        // Menghubungkan ke Space Hugging Face yang menyediakan API Face Swap
+        // (Ganti 'tony-xl/face-swap' dengan nama Space pilihanmu di Hugging Face)
+        const app = await Client.connect("tony-xl/face-swap");
+        
+        // Mengirimkan kedua gambar ke endpoint Hugging Face
+        const result = await app.predict("/predict", [
+          sourceInput, // Foto Wajah Asli
+          targetInput  // Foto Target
+        ]);
+
+        // Menampilkan Hasil
+        const outputUrl = result.data[0].url;
+        resultImg.src = outputUrl;
+        resultImg.style.display = 'block';
+        statusText.innerText = "Selesai!";
+      } catch (error) {
+        console.error(error);
+        statusText.innerText = "Gagal memproses gambar. Coba Space lain atau periksa koneksi.";
+      } finally {
+        processBtn.disabled = false;
+      }
+    });
+  </script>
+</head>
+<body>
+
+  <div class="container">
+    <h1>AI Face Swap Online</h1>
+    <p>Upload foto wajah dan foto target untuk menukar wajah secara otomatis.</p>
+
+    <div class="upload-section">
+      <div class="box">
+        <label>Foto Wajah (Source):</label>
+        <input type="file" id="source-img" accept="image/*">
+      </div>
+      <div class="box">
+        <label>Foto Target (Target):</label>
+        <input type="file" id="target-img" accept="image/*">
+      </div>
+    </div>
+
+    <button id="swap-btn">Mulai Swap Wajah</button>
+
+    <div id="status"></div>
+
+    <div class="result-section">
+      <h3>Hasil:</h3>
+      <img id="result-img" src="" alt="Hasil Face Swap" style="display:none; max-width: 100%;">
+    </div>
+  </div>
+
+</body>
+</html>
