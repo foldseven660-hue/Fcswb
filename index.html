@@ -29,7 +29,7 @@
 
         // Menghubungkan ke Space Hugging Face yang menyediakan API Face Swap
         // (Ganti 'tony-xl/face-swap' dengan nama Space pilihanmu di Hugging Face)
-        const app = await Client.connect("tony-xl/face-swap");
+        const app = await Client.connect("ilkerzgi/face-swap");
         
         // Mengirimkan kedua gambar ke endpoint Hugging Face
         const result = await app.predict("/predict", [
